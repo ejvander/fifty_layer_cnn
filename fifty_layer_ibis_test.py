@@ -114,7 +114,7 @@ im.save("image_test_in.png")
 
 if(args.load_model == None):
   model.fit_generator(generate_image_sets(),
-    steps_per_epoch=30, nb_epoch=15, max_q_size=5)
+      steps_per_epoch=50, nb_epoch=30, max_q_size=5)
   model.save('isis_8-e_400.h5')
 else:
   model = load_model(args.load_model)
