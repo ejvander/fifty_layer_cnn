@@ -2,7 +2,7 @@ from PIL import Image
 import numpy as np
 import os
 
-class ibis_data:
+class ibis_data(object):
   path = "ibis/training/"
   images_path = "images/ISIC-2017_Training_Data/"
   segments_path = "segments/ISIC-2017_Training_Part1_GroundTruth/"
@@ -18,6 +18,9 @@ class ibis_data:
 
   def __init__(self, batch_size):
     self.batch_size = batch_size
+
+  def set_batch(self, batch):
+    self.batch = batch
 
   def build_image_list(self):
     num_read = 0
@@ -43,20 +46,28 @@ class ibis_data:
     num_read = 0
     for i in range(start, end):
       image_name = self.image_list[i]
-      image = Image.open(self.path + self.images_path + image_name)
+      f = open(self.path + self.images_path + image_name)
+      image = Image.open(f)
       image = image.resize((width, height))
       image.load()
+      f.close()
       data = np.asarray(image)
       image_data[num_read] = data
       image.close()
+      del image
+      image = None
 
       seg_name = image_name.split(".jpg")[0] + self.segments_suffix
-      image = Image.open(self.path + self.segments_path + seg_name)
+      f = open(self.path + self.segments_path + seg_name)
+      image = Image.open(f)
       image = image.resize((width, height))
       image.load()
+      f.close()
       data = np.asarray(image)
       segment_data[num_read] = data
       image.close()
+      del image
+      image = None
 
       num_read += 1 
 
@@ -78,17 +89,25 @@ class ibis_data:
     for root, dirs, filenames in os.walk(self.path + self.images_path):
       for f in filenames:
         if num_read < self.training_size and "_superpixels" not in f and ".jpg" in f:
-          image = Image.open(os.path.join(root, f))
+          fi = open(os.path.join(root, f))
+          image = Image.open(fi)
           image = image.resize((width, height))
           image.load()
+          fi.close()
           data = np.asarray(image)
           image_data[num_read] = data
+          del image
+          image = None
 
           seg_name = f.split(".jpg")[0] + self.segments_suffix
-          image = Image.open(os.path.join(self.path + self.segments_path, seg_name))
+          fi = open(os.path.join(self.path + self.segments_path, seg_name))
+          image = Image.open(fi)
           image = image.resize((width, height))
+          fi.close()
           data = np.asarray(image)
           segment_data[num_read] = data
+          del image
+          image = None
 
           num_read += 1
           print "Read " + str(num_read) + " images"
