@@ -26,7 +26,20 @@ class random_classifier_data(ibis_data):
             self.training_list.append(f)
           else:
             self.testing_list.append(f)
-          num_read += 1 
+          num_read += 1
+
+  def randomize_image(self, img):
+
+    # Randomly rotate image(0,90,180,270)
+    rotate_amt = random.randint(0,3)*90
+    img = img.rotate(rotate_amt)
+
+    # Randomly flip image
+    flip_img = random.randint(0,1)
+    if flip_img == 1:
+      img = img.transpose(Image.FLIP_TOP_BOTTOM)
+
+    return img
 
   def load_next_batch(self, width, height):
     if self.image_list == None:
@@ -53,7 +66,8 @@ class random_classifier_data(ibis_data):
       image = image.resize((width, height))
       image.load()
       f.close()
-      image = image.convert('RGB') 
+      image = image.convert('RGB')
+      image = self.randomize_image(image)
       data = np.asarray(image)
       image_data[num_read] = data
       image.close()
