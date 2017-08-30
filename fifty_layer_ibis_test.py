@@ -30,6 +30,11 @@ np.set_printoptions(threshold=np.nan)
 
 
 def scale(x, orig_width, weight):
+  """
+  you taken an image and make a new image thats what? the new size
+  x is image,
+  why would you pass in orig_width and not just take the width from from the image?
+  """
   im = x.reshape(orig_width, orig_width)
   newW = int(weight*orig_width)
   im = Image.fromarray(im)
