@@ -31,9 +31,10 @@ np.set_printoptions(threshold=np.nan)
 
 def scale(x, orig_width, weight):
   """
-  you taken an image and make a new image thats what? the new size
+  you taken an image and make a new image thats what? a new size
   x is image,
   why would you pass in orig_width and not just take the width from from the image?
+  this fxn is also in fifty_layer_ibis_classifier_test.py
   """
   im = x.reshape(orig_width, orig_width)
   newW = int(weight*orig_width)
@@ -42,9 +43,9 @@ def scale(x, orig_width, weight):
   im = np.array(im)
   return im.reshape(newW, newW)
 
-ibis_dat = ibis_data(4)
+ibis_dat = ibis_data(4) # i actually dont understand what this means when you instatiate this class with the #4
  
-smooth = 1
+smooth = 1 # used for calculating dice_coef
 def dice_coef(y_true, y_pred):
   y_true_f = K.flatten(y_true)
   y_pred_f = K.flatten(y_pred)
@@ -56,7 +57,7 @@ def dice_coef_loss(y_true, y_pred):
   return  -dice_coef(y_true, y_pred)
 
 def format_imgs(X_img, Y_img, width):
-    X_img = X_img.reshape(X_img.shape[0], width, width, 3)
+    X_img = X_img.reshape(X_img.shape[0], width, width, 3) # the biggest thing slowing me down is i cant tell if this is a numpy reshape, keras reshape or some other reshape like your own. 
     Y_img = Y_img.reshape(Y_img.shape[0], width, width, 1)
     X_img = X_img.astype('float32')
     X_img /= 255
@@ -65,7 +66,10 @@ def format_imgs(X_img, Y_img, width):
 
     return (X_img, Y_img)
 
-def generate_image_sets(width=480):
+def generate_image_sets(width=480): 
+  """
+  is this fxn ever called?
+  """
   while 1:
     (X_train, Y_train, last) = ibis_dat.load_next_batch(width, width)
     (X_train, Y_train) = format_imgs(X_train, Y_train, width)
@@ -101,7 +105,7 @@ def set_color(img, val):
   img.putdata(newData)
   return img
 
-def prepare_comp_img(bg, ol1, ol2):
+def prepare_comp_img(bg, ol1, ol2): # what does comp stand for? 
   ol1 = set_opacity(ol1, 100)
   ol1 = set_color(ol1, (0,255,0))
   ol2 = set_opacity(ol2, 50)
@@ -110,7 +114,7 @@ def prepare_comp_img(bg, ol1, ol2):
   comb = Image.alpha_composite(comb, ol2)
   return comb 
 
-def test_img(K, X_train, Y_train, img_num, name):
+def test_img(K, X_train, Y_train, img_num, name): # this function is never called?
   test_in = X_train.reshape(1, width, width, 3)
   test_out = K.eval(model(K.variable(test_in)))
   test_out *= 255
@@ -148,7 +152,7 @@ def test_img(K, X_train, Y_train, img_num, name):
   del comb
   del cropped_img
 
-def get_testing_data():
+def get_testing_data(): # fxn never called?
   images = []
   for item in os.listdir("segments"):
     if "jpg" in item:
@@ -185,7 +189,7 @@ def get_testing_data():
 
 width = 480
 
-inp_size = (width, width, 3)
+inp_size = (width, width, 3) # input size is width, width, 3 lol?
 
 #fif = fifty_layer_segmenter()
 #model = fif.build_model(inp_size)
@@ -214,11 +218,11 @@ inp_size = (width, width, 3)
 #plot_model(model, to_file='model.png')
     
 if(args.load_model == None):
-  steps_per_ep = 100
+  steps_per_ep = 100 
   nb_ep = 10
-  model_out_name = 'isis_s' + str(steps_per_ep) + '-e_' + str(nb_ep) + '_1.h5'
+  model_out_name = 'isis_s' + str(steps_per_ep) + '-e_' + str(nb_ep) + '_1.h5' # isis lol
   
-  print "Staring training. model ouput to: " + model_out_name
+  print "Starting training. model ouput to: " + model_out_name
   fif = fifty_layer_segmenter()
   model = fif.build_model(inp_size)
 
