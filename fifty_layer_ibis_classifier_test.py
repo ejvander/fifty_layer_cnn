@@ -1,11 +1,11 @@
-from fifty_layer_classifier import fifty_layer_classifier
+from models.fifty_layer_classifier import fifty_layer_classifier
 from keras.datasets import mnist
 from keras.utils import np_utils
 from keras.utils import plot_model
 from PIL import Image
 import numpy as np
-from classifier_data import classifier_data
-from random_classifier_data import random_classifier_data
+from data_generators.classifier_data import classifier_data
+from data_generators.random_classifier_data import random_classifier_data
 from matplotlib import pyplot as plt
 from keras.models import load_model
 from keras.optimizers import Adam
@@ -15,13 +15,16 @@ from sklearn.metrics import roc_auc_score, roc_curve, auc
 import argparse
 import os
 parser = argparse.ArgumentParser()
+
 # If loading the model give the name of the model to load
 parser.add_argument("-l", "--load_model", help="Specify the file to load the model from")
+
 args = parser.parse_args()
 
 np.set_printoptions(threshold=np.nan)
 
 DEBUG = False
+IMG_WIDTH = 224
 
 def scale(x, orig_width, weight):
   im = x.reshape(orig_width, orig_width)
@@ -69,13 +72,7 @@ def debug_model(model):
     print layer.name + " - " + str(layer.output_shape)
 
 
-width = 224
-
-inp_size = (width, width, 3)
-
-#Y_train = np_utils.to_categorical(y_train, 10)
-#Y_test = np_utils.to_categorical(y_test, 10)
-
+inp_size = (IMG_WIDTH, IMG_WIDTH, 3)
 
 #for layer in model.layers:
 #  print layer.name
@@ -87,8 +84,8 @@ model = None
     
 if(args.load_model == None):
   steps_per_ep = 50
-  nb_ep = 30
-  model_out_name = 'classifier_isis_s' + str(steps_per_ep) + '-e_' + str(nb_ep) + '_1.h5'
+  nb_ep = 200
+  model_out_name = 'classifier_s' + str(steps_per_ep) + '-e_' + str(nb_ep) + '_1_rand.h5'
   print "Staring training. model ouput to: " + model_out_name
   fif = fifty_layer_classifier()
   model = fif.build_model(inp_size)
