@@ -83,7 +83,7 @@ class random_classifier_data(ibis_data):
       num_read += 1 
 
     last = 0
-    if(self.batch == self.num_batches):
+    if self.batch == self.num_batches:
       last = 1
       self.batch = 0
     else:

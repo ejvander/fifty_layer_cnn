@@ -2,12 +2,12 @@ from keras.engine import Layer, InputSpec
 from keras import backend as K
 
 
-
 class Scale(Layer):
     uid_ = 1
     '''Learns a set of weights and biases used for scaling the input data.
     '''
-    def __init__(self, weights=None, axis=-1, momentum = 0.9, beta_init='zero', gamma_init='one', **kwargs):
+
+    def __init__(self, weights=None, axis=-1, momentum=0.9, beta_init='zero', gamma_init='one', **kwargs):
         self.momentum = momentum
         self.axis = axis
         self.beta_init = beta_init
@@ -21,8 +21,10 @@ class Scale(Layer):
         self.input_spec = [InputSpec(shape=input_shape)]
         shape = (int(input_shape[self.axis]),)
 
-        self.gamma = self.add_weight(shape=shape, initializer=self.gamma_init, trainable=True, name="{}_gamma".format(self.name))
-        self.beta = self.add_weight(shape=shape, initializer=self.beta_init, trainable=True, name="{}_beta".format(self.name))
+        self.gamma = self.add_weight(shape=shape, initializer=self.gamma_init, trainable=True,
+                                     name="{}_gamma".format(self.name))
+        self.beta = self.add_weight(shape=shape, initializer=self.beta_init, trainable=True,
+                                    name="{}_beta".format(self.name))
         self.trainable_weights = [self.gamma, self.beta]
 
         if self.initial_weights is not None:

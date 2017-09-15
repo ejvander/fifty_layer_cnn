@@ -5,7 +5,7 @@ from keras.utils import np_utils
 from keras.utils import plot_model
 from PIL import Image
 import numpy as np
-from data_generators.ibis_data import ibis_data
+from data_generators.ibis_data import IbisData
 #from matplotlib import pyplot as plt
 from keras.models import load_model
 from keras.optimizers import Adam
@@ -31,7 +31,7 @@ args = parser.parse_args()
 np.set_printoptions(threshold=np.nan)
 
 IMG_WIDTH = 480
-ibis_dat = ibis_data(4)
+ibis_dat = IbisData(4)
 
 def scale(x, orig_width, weight):
   im = x.reshape(orig_width, orig_width)
