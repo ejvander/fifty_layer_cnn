@@ -1,4 +1,4 @@
-from models import fifty_layer_segmenter, fifty_layer_segmenter_large, fifty_layer_segmenter_huge
+from models import fifty_layer_segmenter, fifty_layer_segmenter_large, fifty_layer_segmenter_huge, fifty_layer_segmenter_w_scale
 import scripts.image_cropper as img
 from keras.datasets import mnist
 from keras.utils import np_utils
@@ -16,6 +16,7 @@ import argparse
 import os
 import gc
 from shutil import copyfile
+from custom_layers.Scale import Scale
 
 # Create Argument parser
 parser = argparse.ArgumentParser()
@@ -201,8 +202,8 @@ inp_size = (IMG_WIDTH, IMG_WIDTH, 3)
     
 if(args.load_model == None):
   steps_per_ep = 100
-  nb_ep = 100
-  
+  nb_ep = 30
+
   print "Staring training."
   fif = None
   if(args.size == "optimal"):
@@ -211,11 +212,13 @@ if(args.load_model == None):
     fif = fifty_layer_segmenter_large.fifty_layer_segmenter_large()
   elif(args.size == "huge"):
     fif = fifty_layer_segmenter_huge.fifty_layer_segmenter_huge()
+  elif(args.size == "paper"):
+    fif = fifty_layer_segmenter_w_scale.fifty_layer_segmenter()
 
   model = fif.build_model(inp_size)
 
-  #model.compile(loss=dice_coef_loss, optimizer='adam', metrics=['accuracy'])
-  model.compile(loss="binary_crossentropy", optimizer='adam', metrics=[metrics.binary_accuracy])
+  model.compile(loss=dice_coef_loss, optimizer='adam', metrics=[metrics.binary_accuracy])
+  #model.compile(loss="binary_crossentropy", optimizer='adam', metrics=[metrics.binary_accuracy])
   model.fit_generator(generate_image_sets(),
       steps_per_epoch=steps_per_ep, nb_epoch=nb_ep, max_q_size=5)
   num_layers = count_trainable_layers(model)
@@ -225,7 +228,7 @@ if(args.load_model == None):
 else:
   print "Loading model: " + args.load_model
   K.set_learning_phase(0)
-  model = load_model(args.load_model, custom_objects={'dice_coef_loss': dice_coef_loss})
+  model = load_model(args.load_model, custom_objects={'dice_coef_loss': dice_coef_loss, 'Scale': Scale})
   print model.summary()
   print "Done Loading model"
 
@@ -251,7 +254,7 @@ if(args.test_set):
 
 
 # Generate results form training data
-if(args.train_set):
+'''if(args.train_set):
   # Set batch to passed in argument
   ibis_dat.set_batch(int(args.batch_num))
 
@@ -262,6 +265,25 @@ if(args.train_set):
     (X_train, Y_train, last) = ibis_dat.load_next_batch(IMG_WIDTH, IMG_WIDTH)
     for i in xrange(0, len(X_train)):
       test_img(K, X_train[i], Y_train[i], i + b*ibis_dat.batch_size, "train", IMG_WIDTH)
+
+    if(last):
+      break
+'''
+if(args.train_set):
+  # Set batch to passed in argument
+  ibis_dat.set_batch(0)
+
+  last = 0
+  index = 0
+  for b in xrange(0, 500):
+    print "Running training batch #" + str(ibis_dat.batch)
+    (X_test, Y_test, last) = ibis_dat.load_next_batch(IMG_WIDTH, IMG_WIDTH)
+    (X_test, Y_test) = format_imgs(X_test, Y_test, IMG_WIDTH)
+    y_pred = model.predict(X_test, batch_size=len(X_test))
+    for i in xrange(0, len(X_test)):
+      save_images(y_pred[i]*255, X_test[i]*255, Y_test[i], i+b*ibis_dat.batch_size, "train", IMG_WIDTH)
+    #for i in xrange(0, len(X_train)):
+    #  test_img(K, X_train[i], Y_train[i], i + b*ibis_dat.batch_size, "train", IMG_WIDTH)
 
     if(last):
       break

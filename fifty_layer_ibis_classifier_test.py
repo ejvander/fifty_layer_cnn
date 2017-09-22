@@ -111,20 +111,30 @@ else:
 #print "Running testing data"
 y_pred = None
 y_test = None
-classifier_dat.batch_size = 25
-for i in range(10):
-  (x_test, y_test_tmp, last) = classifier_dat.load_next_batch(224, 224)
+classifier_dat.batch_size = 5
+rotate_amt = 0
+flip = 0
+while True:
+  print "Predicting batch #%d, rotate_amt %d, flip %d" % (classifier_dat.verif_batch, rotate_amt, flip)
+  (x_test, y_test_tmp, last) = classifier_dat.load_verification_batch(224, 224, rotate_amt, flip)
   x_test = format_imgs(x_test, 224)
-  #print x_test
   y_pred_tmp = model.predict(x_test, batch_size=1)
-  #print y_test_tmp
-  #print y_pred_tmp
   if(y_pred is None):
     y_pred = y_pred_tmp
     y_test = y_test_tmp
   else:
     y_pred = np.append(y_pred, y_pred_tmp, axis = 0)
     y_test = np.append(y_test, y_test_tmp, axis=0)
+
+  if(last):
+    # Loop through until we have done all images in the verif set
+    if(rotate_amt == 270 and flip == 1):
+      break
+    
+    last = 0
+    rotate_amt = rotate_amt+90
+    flip = 1 if rotate_amt//360 == 1 or flip == 1 else 0
+    rotate_amt %= 360
 print y_pred[:,0]
 print y_test[:,0]
 fpr, tpr, _ = roc_curve(y_test[:,0], y_pred[:,0])
