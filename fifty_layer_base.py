@@ -26,7 +26,7 @@ class fifty_layer_base:
     x = Activation('relu')(x)
     return x
 
-  def build_parralel_layers(self, inp, num_features, stride=1):
+  def build_parallel_layers(self, inp, num_features, stride=1):
     x1 = self.build_triple_conv(inp, num_features, stride)
     
     x2 = Conv2D(num_features*4, (1, 1), strides=(stride,stride), padding='same', use_bias=False, data_format='channels_last')(inp)

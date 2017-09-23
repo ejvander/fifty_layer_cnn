@@ -26,7 +26,7 @@ class fifty_layer_segmenter:
     x = Activation('relu')(x)
     return x
 
-  def build_parralel_layers(self, inp, num_features, stride=1):
+  def build_parallel_layers(self, inp, num_features, stride=1):
     x1 = self.build_triple_conv(inp, num_features, stride)
     
     x2 = Conv2D(num_features*4, (1, 1), strides=(stride,stride), padding='same', use_bias=False, data_format='channels_last')(inp)
@@ -66,20 +66,20 @@ class fifty_layer_segmenter:
 
     s1 = MaxPooling2D(pool_size=(3,3), strides=(2,2))(x)
 
-    x = self.build_parralel_layers(s1, 64)
+    x = self.build_parallel_layers(s1, 64)
     x = self.build_passthrough(x, 64)
     x = self.build_passthrough(x, 64)
-    x = self.build_parralel_layers(x, 128, 2)
+    x = self.build_parallel_layers(x, 128, 2)
     x = self.build_passthrough(x, 128)
     x = self.build_passthrough(x, 128)
     o1 = self.build_passthrough(x, 128)
-    x = self.build_parralel_layers(o1, 256, 2)
+    x = self.build_parallel_layers(o1, 256, 2)
 #    x = self.build_passthrough(x, 256)
     x = self.build_passthrough(x, 256)
 #    x = self.build_passthrough(x, 256)
     x = self.build_passthrough(x, 256)
     o2 = self.build_passthrough(x, 256)
-    x = self.build_parralel_layers(o2, 512, 2)
+    x = self.build_parallel_layers(o2, 512, 2)
     x = self.build_passthrough(x, 512)
     x = self.build_passthrough(x, 512)
     x = self.build_score(x)
